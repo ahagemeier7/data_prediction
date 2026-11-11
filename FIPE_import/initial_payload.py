@@ -1,5 +1,5 @@
 import pandas as pd
-from ..db.postgres import get_db_engine
+from db.postgres import get_db_engine
 
 def initial_payload():
     df = pd.read_parquet('fipex-prices-latest-merged.parquet')
@@ -13,3 +13,6 @@ def initial_payload():
         if_exists='replace',
         index=False,
     )
+
+if __name__ == '__main__':
+    initial_payload()

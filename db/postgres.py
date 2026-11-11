@@ -3,7 +3,7 @@ import sys
 import logging
 from sqlalchemy import create_engine, Engine
 
-_engine = None
+_db_engine = None
 
 def get_db_engine():
     global _db_engine

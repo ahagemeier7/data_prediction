@@ -1,0 +1,38 @@
+
+services:
+  postgres:
+    build: .
+    container_name: postgres-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-admin123}
+      POSTGRES_DB: data_prediction
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  db-init:
+    image: postgres:17
+    container_name: postgres-init
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGPORT: 5432
+      PGUSER: admin
+      PGPASSWORD: ${POSTGRES_PASSWORD:-admin123}
+    volumes:
+      - ./init-db.sh:/scripts/init-db.sh:ro
+    entrypoint: ["bash", "/scripts/init-db.sh"]
+
+volumes:
+  postgres_data:
