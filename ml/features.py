@@ -1,3 +1,10 @@
+CATEGORICAL_FEATURES = [
+    "codigo_fipe",
+    "nome_marca",
+    "tipo_veiculo",
+    "sigla_combustivel",
+]
+
 FEATURES = [
     "codigo_fipe",
     "nome_marca",

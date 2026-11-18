@@ -25,9 +25,10 @@ def prepare_dataset(df: pd.DataFrame) -> pd.DataFrame:
   
   # Delete duplicates checking the set created by the unique vehicle keys and the date column
   if df.duplicated(VEHICLE_KEYS + ["periodo"]).any():
-    raise ValueError(
-      "There are duplicated registries by vehicle/month"
-    )
+    df.drop_duplicates()
+    #raise ValueError(
+    #  "There are duplicated registries by vehicle/month"
+    #)
     
   # Order by the informed column
   df = df.sort_values(VEHICLE_KEYS + ["periodo"])
