@@ -16,8 +16,8 @@ def get_models():
         #"baseline": LastValueRegressor(),
 
         "catboost": CatBoostRegressor(
-            iterations=500,
-            depth=6,
+            iterations=200,
+            depth=4,
             learning_rate=0.05,
             loss_function="MAE",
             random_seed=42,
@@ -26,10 +26,10 @@ def get_models():
         ),
         
         "lightgbm": LGBMRegressor(
-            n_estimators=500,
+            n_estimators=200,
+            num_leaves=15,
             max_depth=-1,
             learning_rate=0.05,
-            num_leaves=31,
             objective="regression_l1",
             random_state=42,
             verbosity=-1,
