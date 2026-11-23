@@ -13,7 +13,7 @@ class LastValueRegressor:
 
 def get_models():
     return {
-        #"baseline": LastValueRegressor(),
+        "baseline": LastValueRegressor(),
 
         "catboost": CatBoostRegressor(
             iterations=200,

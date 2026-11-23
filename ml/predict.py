@@ -4,16 +4,15 @@ from pathlib import Path
 from ml.features import FEATURES
 
 MODEL_DIR = Path(__file__).resolve().parent.parent / "models"
-MODEL_PATH = MODEL_DIR / "fipe_model.joblib"
 
-def load_model():
+def load_model(horizon: int):
+  model_path = MODEL_DIR / f"fipe_model_{horizon}m.joblib"
 
-  if not MODEL_PATH.exists():
+  if not model_path.exists():
     raise FileNotFoundError(
-      "Trained model not found"
+      f"Trained model for {horizon}-month horizon not found: {model_path}"
     )
   
-  model = joblib.load(MODEL_PATH)
+  model = joblib.load(model_path)
   
   return model
-  

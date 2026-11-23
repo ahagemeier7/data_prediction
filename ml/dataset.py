@@ -1,57 +1,70 @@
 import pandas as pd
 
 VEHICLE_KEYS = [
-  "tipo_veiculo",
-  "codigo_fipe",
-  "ano_modelo",
-  "sigla_combustivel",
-  "zero_km"
+    "tipo_veiculo",
+    "codigo_fipe",
+    "ano_modelo",
+    "sigla_combustivel",
+    "zero_km"
 ]
+
+HORIZONS = [1, 3, 6, 12]
 
 def prepare_dataset(df: pd.DataFrame) -> pd.DataFrame:
   df = df.copy()
-  
-  #Create a date column to simplify the time validation
+
+  # Create a date column for time validation
   df["periodo"] = pd.to_datetime({
-    "year": df["ano_referencia"],
-    "month": df["mes_referencia"],
-    "day": 1
+      "year": df["ano_referencia"],
+      "month": df["mes_referencia"],
+      "day": 1
   })
-  
-  # Drop null rows on the input subset
+
+  # Drop rows with missing required values
   df = df.dropna(
-    subset = VEHICLE_KEYS + ["periodo","valor"]
+      subset=VEHICLE_KEYS + ["periodo", "valor"]
   )
-  
-  # Delete duplicates checking the set created by the unique vehicle keys and the date column
-  if df.duplicated(VEHICLE_KEYS + ["periodo"]).any():
-    df.drop_duplicates()
-    #raise ValueError(
-    #  "There are duplicated registries by vehicle/month"
-    #)
-    
-  # Order by the informed column
+
+  # Remove duplicated vehicle/month records
+  df = df.drop_duplicates(
+      subset=VEHICLE_KEYS + ["periodo"]
+  )
+
+  # Sort records by vehicle and chronological order
   df = df.sort_values(VEHICLE_KEYS + ["periodo"])
-  
-  #Group by vehicle keys, and preventing it to resort the keys (we have already sorted in the previous step)
+
+  # Group records by vehicle
   grouped = df.groupby(VEHICLE_KEYS, sort=False)
-  
-  # Defining the target. .shift(-1) is used to move the rows one row up, so the target value of the row, represent the next month vehicle value
-  df["target"] = grouped["valor"].shift(-1)
-  
-  #Creating the next period value
-  df["proximo_periodo"] = grouped["periodo"].shift(-1)
-  
-  # Calculating the next month  of every registry
-  next_month = df["periodo"] + pd.DateOffset(months=1)
-  
-  # Keeping only the consecutive months
-  df = df[
-    df["proximo_periodo"].eq(next_month)
-  ].copy()
-  
+
+  # Create targets for each forecasting horizon
+  for horizon in HORIZONS:
+
+    # Price of the future record
+    df[f"target_{horizon}m"] = (
+        grouped["valor"].shift(-horizon)
+    )
+
+    # Date of the future record
+    future_period = (
+        grouped["periodo"].shift(-horizon)
+    )
+
+    # Expected date for this forecasting horizon
+    expected_period = (
+        df["periodo"]
+        + pd.DateOffset(months=horizon)
+    )
+
+    # Remove targets that do not match the requested calendar horizon.
+    df[f"target_{horizon}m"] = (
+        df[f"target_{horizon}m"].where(
+          future_period.eq(expected_period)
+        )
+    )
+
+  # Calculate vehicle age
   df["idade_veiculo"] = (
     df["ano_referencia"] - df["ano_modelo"]
   )
-  
+
   return df

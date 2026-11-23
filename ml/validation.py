@@ -4,12 +4,12 @@ import pandas as pd
 from sklearn.base import clone
 from sklearn.metrics import mean_absolute_error
 
-from dataset import prepare_dataset
-from models import get_models
-from features import CATEGORICAL_FEATURES, FEATURES
+from ml.dataset import prepare_dataset
+from ml.models import get_models
+from ml.features import CATEGORICAL_FEATURES, FEATURES
 
 # ----------------------------------
-# 1. Prepare the dataset
+# Prepare the dataset
 # ----------------------------------
 
 df = pd.read_parquet("./FIPE_import/fipex-prices-latest-merged.parquet")
@@ -26,7 +26,7 @@ X[CATEGORICAL_FEATURES] = X[CATEGORICAL_FEATURES].astype("category")
 y = df["target"]
 
 # ----------------------------------
-# 2. Select the evaluation months
+# Select the evaluation months
 # ----------------------------------
 
 # Collect distinct target months and sort them chronologically.
@@ -49,7 +49,7 @@ models = get_models()
 results = []
 
 # ----------------------------------
-# 3. Train and evaluate the models
+# Train and evaluate the models
 # ----------------------------------
 
 #Creating a separate training dataset from earlier months
@@ -113,7 +113,7 @@ for evaluation_month in evaluation_months:
         )
 
 # ----------------------------------
-# 4. Summarize the evaluated splits
+# Summarize the evaluated splits
 # ----------------------------------
 
 results_df = pd.DataFrame(results)
